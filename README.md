@@ -11,6 +11,20 @@
 
 ---
 
+## 📋 Instrucciones y Requerimientos de la Asignatura
+
+> **Objetivo:** Implementar y demostrar el DNS y la infraestructura web de la organización elegida (**Colegio Bautista Boliviano Brasileño - CBBB**).
+
+- • **Elegir la organización:** Levantar sus necesidades y diseñar el plan de nombres (zona interna `.internal` y zona pública), la red y los servicios.
+- • **Implementar el DNS:** BIND9 primario y secundario con vistas interna/externa, DNSSEC con `dnssec-policy` (validado con `delv`), transferencia con TSIG, resolutor con DNS sobre TLS y RPZ, y zona pública en DNSControl con validación automática.
+- • **Integrar los servicios por nombre:** Sitio web con HTTPS, SSH endurecido y correo con MX, SPF, DKIM y DMARC.
+- • **Aplicar seguridad y administración:** Firewall UFW, Fail2ban, actualizaciones del sistema, monitoreo del DNS y de los servicios, reportes de registros (GoAccess) y respaldos de configuración con Restic.
+- • **Entregar documentación completa:** Manual de operación, informe de pruebas y bitácora de IA; defender con demostración en vivo de 15 minutos.
+- • **Formato Académico:** Informe técnico final + consolidado de bitácora IA con formato **APA v7**, enlace al repositorio GitHub y presentación de la actividad en HTML/PDF.
+- • **Defensa del informe.**
+
+---
+
 ## 📌 Datos Académicos e Integrantes
 
 - **Institución:** Universidad Privada Domingo Savio (UPDS) — Sede Santa Cruz
@@ -39,8 +53,8 @@
 La auditoría previa no invasiva reveló vulnerabilidades críticas en la infraestructura actual:
 1. **DMARC Inexistente:** Vulnerabilidad crítica de phishing y spoofing a nombre del colegio.
 2. **SPF Desalineado:** `~all` sin incluir los servidores de Google Workspace que el personal utiliza activamente.
-3. **Sin DNSSEC:** Expuesto a envenenamiento de caché (Kaminsky Attack) en las conexiones de los estudiantes.
-4. **Sin CAA:** Cualquier CA pública puede emitir certificados fraudulentos para su dominio.
+3. **Sin DNSSEC:** Expuesto a envenenamiento de caché (*DNS Cache Poisoning*) en las consultas de los estudiantes.
+4. **Sin CAA:** Cualquier CA pública puede emitir certificados fraudulentos para su dominio sin control.
 5. **Falta de Vistas Split-Horizon:** Saturación de ancho de banda y exposición de direcciones IP internas.
 
 ---
@@ -80,7 +94,7 @@ La auditoría previa no invasiva reveló vulnerabilidades críticas en la infrae
 ## 🎯 Cumplimiento de la Rúbrica de Evaluación (30 / 30 Puntos — Nivel Estratégico)
 
 | Criterio Evaluado | Pts | Requisitos Nivel Autónomo | Valor Agregado Nivel Estratégico (+Plus) | Estado |
-|---|---|---|---|:---:|
+|---|:---:|---|---|:---:|
 | **1. DNS de la organización: diseño e implementación** | **9 / 9** | BIND 9 primario (`ns1`) y secundario (`ns2`) con vistas `interna` (`cbbb.internal`) y `externa` (`cbbb.example`), replicación TSIG con NOTIFY, zona pública descrita en DNSControl (`dnsconfig.js`). | **Procedimiento formal de cambios de zona** (serial `YYYYMMDDnn`, TTLs, Pull Requests en Git) y **Plan de migración híbrido Anycast** (Cloudflare + BIND9 local). | ✅ **100% CUMPLIDO** |
 | **2. Seguridad del DNS e integración de servicios** | **9 / 9** | Zona pública firmada con DNSSEC (`dnssec-policy standard`) validada con `delv` (`fully validated`), Unbound con DoT en puerto 853 y RPZ escolar, Web Nginx HTTPS (TLS 1.3, HSTS, CSP), SSH Ed25519, Mail con SPF, DKIM y DMARC `p=quarantine`. | **Servicio investigado integrado:** Certificados comodín mediante **Desafío DNS-01 ACME (RFC 8555)** y **DNS Dinámico seguro con `nsupdate` (RFC 2136)** autenticado con TSIG. | ✅ **100% CUMPLIDO** |
 | **3. Administración, seguridad y documentación operativa** | **12 / 12** | Firewall UFW auditado con Nmap (solo 22, 80, 443), logs GoAccess, respaldos deduplicados Restic con restauración comprobada (SHA-256 intacto), Manual de Operación con DRP en 25 min. | **Plan de adopción institucional real** (presupuesto en Santa Cruz con 82% de ahorro FOSS, matriz de riesgos de cortes CRE/fibra) y **Guía de defensa oral con 8 preguntas técnicas imprevistas**. | ✅ **100% CUMPLIDO** |
@@ -94,7 +108,7 @@ Todos los documentos consolidados en formato **APA v7** se encuentran en la carp
 
 1. 📄 [**Informe Técnico Proyecto Final APA 7**](./00_ENTREGABLES_PDF/Proyecto_Final_Informe_Tecnico_APA7.pdf): Radiografía DNS real del CBBB, arquitectura de 7 nodos, justificación de estándares RFC, tablas de auditoría y referencias bibliográficas.
 2. 🤖 [**Bitácora Metodológica de Inteligencia Artificial APA 7**](./00_ENTREGABLES_PDF/Proyecto_Final_Bitacora_IA_APA7.pdf): Registro riguroso de prompts, validación cruzada y declaración ética.
-3. 💼 [**Plan de Adopción Real para el CBBB**](./00_ENTREGABLES_PDF/Proyecto_Final_Plan_Adopcion_CBBB.pdf): Análisis financiero en Santa Cruz (CAPEX $us 2,600 FOSS vs $us 14,366 comercial), matriz de riesgos y migración en 45 días.
+3. 💼 [**Plan de Adopción Real para el CBBB**](./00_ENTREGABLES_PDF/Proyecto_Final_Plan_Adopcion_CBBB.pdf): Análisis financiero en Santa Cruz (CAPEX $us 2,600 FOSS vs $us 14,366 comercial), matriz de riesgos y cronograma de 45 días.
 4. 🎤 [**Guía de Defensa Oral y Preguntas Técnicas Imprevistas**](./00_ENTREGABLES_PDF/Proyecto_Final_Guia_Defensa_TFI.pdf): 8 preguntas de alta complejidad con respuestas modelo sobre DNSSEC, DoT, SOA, TSIG y DRP.
 5. 📊 [**Presentación Ejecutiva del Proyecto Final**](./00_ENTREGABLES_PDF/Proyecto_Final_Presentacion.pdf): 12 diapositivas en tema Deep Navy listas para exposición.
 
