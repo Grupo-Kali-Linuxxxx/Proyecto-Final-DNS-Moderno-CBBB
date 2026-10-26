@@ -1,0 +1,36 @@
+; db.cbbb.example.externa — Zona pública autoritativa del CBBB (para internet)
+$TTL 3600
+@   IN  SOA ns1.cbbb.example. soporte-ti.cbautistabb.edu.bo. (
+            2026102601  ; Serial YYYYMMDDnn
+            3600        ; Refresh
+            600         ; Retry
+            1209600     ; Expire
+            300         ; Negative Cache TTL
+)
+
+; Servidores de Nombres Públicos
+@           IN  NS      ns1.cbbb.example.
+@           IN  NS      ns2.cbbb.example.
+
+ns1         IN  A       203.0.113.2
+ns2         IN  A       198.51.100.3
+
+; Servicios Web Públicos
+@           IN  A       203.0.113.20
+www         IN  A       203.0.113.20
+portal      IN  CNAME   www.cbbb.example.
+aulavirtual IN  CNAME   www.cbbb.example.
+
+; Servidor de Correo Institucional
+@           IN  MX  10  mail.cbbb.example.
+mail        IN  A       203.0.113.25
+
+; Políticas de Seguridad de Correo Institucional
+@           IN  TXT     "v=spf1 mx include:_spf.google.com ip4:203.0.113.25 -all"
+_dmarc      IN  TXT     "v=DMARC1; p=quarantine; sp=reject; pct=100; rua=mailto:dmarc-reports@cbautistabb.edu.bo; ruf=mailto:seguridad-ti@cbautistabb.edu.bo"
+mail._domainkey IN TXT  "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0FvLqP+4gW7uK8hZt2..."
+
+; Restricción CAA para Emisión de Certificados TLS (RFC 8659)
+@           IN  CAA 0 issue "letsencrypt.org"
+@           IN  CAA 0 issuewild "none"
+@           IN  CAA 0 iodef "mailto:seguridad-ti@cbautistabb.edu.bo"

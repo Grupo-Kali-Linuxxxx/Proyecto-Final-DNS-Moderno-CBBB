@@ -1,0 +1,21 @@
+; rpz-bloqueos.zone — Lista de Política de Respuesta (RPZ) para Protección Infantil y Escolar
+; Colegio Bautista Boliviano Brasileño (CBBB)
+$TTL 3600
+@   IN  SOA localhost. root.localhost. (
+            2026102601  ; Serial
+            3600        ; Refresh
+            600         ; Retry
+            86400       ; Expire
+            3600        ; Min TTL
+)
+@   IN  NS  localhost.
+
+; Bloqueo de dominios de apuestas y contenido inapropiado para menores (devuelve NXDOMAIN)
+apuestas-online.com         CNAME   .
+*.apuestas-online.com       CNAME   .
+sitio-malicioso.com         CNAME   .
+*.sitio-malicioso.com       CNAME   .
+phishing-banco-union.xyz    CNAME   .
+*.phishing-banco-union.xyz  CNAME   .
+juegos-azar.bo              CNAME   .
+*.juegos-azar.bo            CNAME   .

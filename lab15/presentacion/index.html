@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto Socioformativo: DNS Moderno e Infraestructura Web — CBBB (UPDS)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(18, 24, 38, 0.92);
+      --border: rgba(255, 255, 255, 0.08);
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.35);
+      --accent: #818cf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --code-bg: #050811;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #151c2e 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Barra superior */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 15, 25, 0.7);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--primary-glow);
+      color: var(--primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Contenedor de Diapositivas */
+    main {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      max-width: 1180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      position: relative;
+    }
+
+    /* Componentes visuales */
+    .title-tag {
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .title-tag::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    h1 {
+      font-size: 2.3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .lead {
+      color: var(--text-muted);
+      font-size: 1.02rem;
+      line-height: 1.45;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    .code-box .comment { color: #64748b; }
+    .code-box .ok { color: #34d399; font-weight: 600; }
+    .code-box .err { color: #f87171; font-weight: 600; }
+    .code-box .warn { color: #fbbf24; }
+
+    ul.feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    ul.feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    ul.feature-list li strong { color: #fff; }
+    ul.feature-list li::before { content: '✔'; color: var(--success); font-weight: bold; }
+
+    table.custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    table.custom-table th {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--primary);
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.custom-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+    }
+
+    table.custom-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 2rem;
+      border-top: 1px solid var(--border);
+      background: rgba(11, 15, 25, 0.8);
+      z-index: 10;
+    }
+
+    .nav-buttons { display: flex; gap: 0.75rem; }
+
+    button.btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    button.btn:hover { background: rgba(56, 189, 248, 0.15); border-color: var(--primary); color: var(--primary); }
+    button.btn-primary { background: var(--primary); color: #0b0f19; border-color: var(--primary); }
+    button.btn-primary:hover { background: #7dd3fc; color: #0b0f19; }
+
+    .key-hint { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; }
+    kbd {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .img-preview {
+      width: 100%;
+      height: 195px;
+      object-fit: contain;
+      background: #050811;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media print {
+      @page { size: landscape; margin: 0; }
+      html, body {
+        background: #0b0f19 !important;
+        color: #f1f5f9 !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, footer, .nav-buttons, .key-hint { display: none !important; }
+      main { display: block !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: relative !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        padding: 2.2rem 2.8rem !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior -->
+  <header>
+    <div class="brand">
+      <span>🛡️ Tecnología Web I</span>
+      <span class="badge">Trabajo Final Integrador (C3)</span>
+    </div>
+    <div class="slide-counter">
+      <span id="current-slide">1</span> / <span id="total-slides">12</span>
+    </div>
+  </header>
+
+  <!-- Diapositivas -->
+  <main>
+
+    <!-- Diapositiva 1: Portada -->
+    <div class="slide active">
+      <div class="title-tag">Universidad Privada Domingo Savio — Criterio C3 (30 Puntos)</div>
+      <h1>DNS Moderno e Infraestructura Web Segura: Colegio Bautista Boliviano Brasileño</h1>
+      <p class="lead">
+        Arquitectura híbrida de nombres (BIND 9 con Split-Horizon, TSIG, DNSSEC, DoT y RPZ), servicios web HTTPS, SSH endurecido, correo criptográfico, operación segura y plan de adopción real.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">👥 Equipo Consultor de Ingeniería (Grupo)</div>
+          <ul class="feature-list">
+            <li><strong>Ketfer Gianella Salazar</strong> (Coordinación General & Seguridad)</li>
+            <li><strong>Charles Yourdan Conde</strong> (Infraestructura DNS BIND9 & Vistas)</li>
+            <li><strong>Brian Calás</strong> (Resolutor Unbound, DoT & RPZ)</li>
+            <li><strong>Marco Barriga</strong> (Servidor Web Nginx, TLS 1.3 & SSH)</li>
+            <li><strong>Adaniel Balderrama Orellana</strong> (Servidor de Correo Postfix/Dovecot & Restic)</li>
+            <li><strong>Docente Evaluador:</strong> M.Sc. Ing. Jimmy Nataniel Requena Llorentty</li>
+            <li><strong>GitHub:</strong> <code>Grupo-Kali-Linuxxxx/Proyecto-Final-DNS-Moderno-CBBB</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🎯 Alcance de Evaluación (Rúbrica de 30 Puntos)</div>
+          <ul class="feature-list">
+            <li><strong>Criterio 1 (9 pts):</strong> BIND 9 primario/secundario TSIG con vistas, DNSControl, procedimiento de cambios y plan Anycast.</li>
+            <li><strong>Criterio 2 (9 pts):</strong> DNSSEC validado con delv, DoT en puerto 853, RPZ escolar y servicio investigado (DNS-01 ACME + nsupdate).</li>
+            <li><strong>Criterio 3 (12 pts):</strong> UFW perimetral, GoAccess, respaldos Restic con restauración probada, manual de operación, DRP y plan de adopción real.</li>
+            <li><strong>Meta:</strong> 30 de 30 puntos (Nivel de Dominio Estratégico).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 2: Diagnóstico Real del Dominio -->
+    <div class="slide">
+      <div class="title-tag">Diagnóstico de la Organización Real</div>
+      <h2>Radiografía DNS en Vivo del Dominio <code>cbautistabb.edu.bo</code></h2>
+      <p class="lead">Auditoría no invasiva mediante consultas DNS públicas sobre los servidores autoritativos del colegio.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔬 Hallazgos y Vulnerabilidades Detectadas</div>
+          <table class="custom-table">
+            <thead>
+              <tr><th>Parámetro</th><th>Estado en Producción</th><th>Diagnóstico y Riesgo</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>DMARC</strong></td><td><span class="err">❌ INEXISTENTE</span></td><td>Cualquiera puede enviar correos falsos haciéndose pasar por el Director o Secretaría (*phishing*).</td></tr>
+              <tr><td><strong>SPF</strong></td><td><span class="warn">⚠️ ~all (Sin Google)</span></td><td>Usa Google Workspace pero el registro no lo incluye; correos de profesores caen en spam.</td></tr>
+              <tr><td><strong>DNSSEC</strong></td><td><span class="err">❌ NO FIRMADO</span></td><td>Sin registros DS en .bo; expuesto a envenenamiento de caché (*DNS Cache Poisoning*).</td></tr>
+              <tr><td><strong>CAA</strong></td><td><span class="err">❌ INEXISTENTE</span></td><td>Cualquier autoridad certificadora puede emitir certificados para el colegio.</td></tr>
+              <tr><td><strong>PTR (rDNS)</strong></td><td><code>host.nemabol.net</code></td><td>Desalineado; no coincide con el FQDN del colegio (*FCrDNS roto*).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">💡 Objetivos del Proyecto para el CBBB</div>
+          <ul class="feature-list">
+            <li><strong>Aislamiento Total:</strong> Crear zona interna <code>cbbb.internal</code> invisible para internet.</li>
+            <li><strong>Blindaje Criptográfico:</strong> DNSSEC con <code>delv fully validated</code> y DMARC <code>p=quarantine</code>.</li>
+            <li><strong>Privacidad Escolar:</strong> Resolutor Unbound con DNS sobre TLS (853) y filtrado RPZ.</li>
+            <li><strong>Ahorro Real:</strong> 82% de reducción de costos usando software libre empresarial.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 3: Arquitectura y Topología de 7 Nodos -->
+    <div class="slide">
+      <div class="title-tag">Diseño de Arquitectura</div>
+      <h2>Topología de Red Desacoplada y Flujos de Comunicación</h2>
+      <p class="lead">Modelo de 7 nodos distribuidos entre la subred interna del campus y el internet simulado.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🌐 Mapa de Nodos y Direccionamiento IP</div>
+          <table class="custom-table">
+            <thead>
+              <tr><th>Nodo</th><th>IP Interna</th><th>Rol y Servicios</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>ns1</strong></td><td>10.10.10.2 / 172.30.0.2</td><td>DNS Primario BIND 9 con Vistas Split-Horizon y DNSSEC.</td></tr>
+              <tr><td><strong>ns2</strong></td><td>10.10.10.3</td><td>DNS Secundario BIND 9 con réplica TSIG y NOTIFY.</td></tr>
+              <tr><td><strong>resolutor</strong></td><td>10.10.10.4</td><td>Unbound DoT puerto 853 y filtrado escolar RPZ.</td></tr>
+              <tr><td><strong>servidor-web</strong></td><td>10.10.10.20</td><td>Nginx HTTPS TLS 1.3, PHP-FPM, SSH Ed25519, UFW, Restic.</td></tr>
+              <tr><td><strong>mail</strong></td><td>10.10.10.25</td><td>Postfix MTA, Dovecot IMAPS 993, Submission 587, OpenDKIM.</td></tr>
+              <tr><td><strong>cliente</strong></td><td>10.10.10.50</td><td>Estación interna de auditoría TI del colegio.</td></tr>
+              <tr><td><strong>externo</strong></td><td>172.30.0.100</td><td>Cliente externo para auditar la vista pública y delv.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">🔄 Flujo de Tráfico y Barrera Cortafuegos</div>
+          <div class="code-box" style="font-size: 0.76rem;">
+[ Internet / Nodo Externo (172.30.0.100) ]
+        │  Consultas DNS públicas / Peticiones Web
+        ▼
+[ ns1 Interfaz Externa (172.30.0.2) ]
+        │  Vista Externa: cbbb.example (DNSSEC Firmado NSEC3)
+        ▼
+   BARRERA FIREWALL UFW (Solo puertos 22, 80 y 443 autorizados)
+        ▼
+=================================================================
+       RED INTERNA COLEGIO CBBB (Subred: 10.10.10.0/24)
+=================================================================
+  ns1 (10.10.10.2) <==TSIG==> ns2 (10.10.10.3)
+  resolutor (10.10.10.4) <--- Unbound DoT (853) & RPZ
+  servidor-web (10.10.10.20) <--- Nginx HTTPS & Restic Backup
+  mail (10.10.10.25) <--- Postfix / Dovecot IMAPS 993 / DKIM
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 4: Las 5 Decisiones Técnicas Justificadas -->
+    <div class="slide">
+      <div class="title-tag">Criterio Arquitectónico</div>
+      <h2>Matriz de las 5 Decisiones Técnicas Clave</h2>
+      <p class="lead">Justificaciones técnicas de seguridad, rendimiento y soberanía digital para el colegio.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">1. Vistas Split-Horizon</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            Las estaciones internas resuelven <code>cbbb.internal</code> a IPs locales sin gastar internet. Para internet, la zona privada devuelve <strong>REFUSED</strong>, blindando la red interna contra reconocimiento de atacantes.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">2. Resolutor Unbound + DoT</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            Desacopla la autoridad de la recursión. Valida DNSSEC en memoria, cifra consultas externas con <strong>DoT (853)</strong> contra espionaje del ISP y bloquea apuestas y malware con listas <strong>RPZ</strong>.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">3. CA Institucional Propia</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            Los dominios <code>.internal</code> no son emitidos por Let's Encrypt. La CA propia emite certificados X.509 de 2048 bits para web y correo con <strong>$0 de costo</strong>, sin alertas en navegadores.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">4. Submission 587 + PCRE</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            El puerto 25 se reserva a MTAs. El 587 exige TLS y SASL obligatorio. La regla <code>reject_sender_login_mismatch</code> impide que un usuario envíe correos haciéndose pasar por el Director (error 553).
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">5. Respaldos Restic AES-256</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            Deduplicación por bloques y cifrado en origen con AES-256-GCM. Un respaldo robado es ilegible sin la clave. Temporizadores systemd garantizan ejecución nocturna y restauración probada en < 25 min.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">6. DNSControl como Código</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">
+            Control de cambios declarativo en <code>dnsconfig.js</code> con ciclo <code>check → preview → push</code>, eliminando errores humanos de edición manual en zonas públicas.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 5: DNS Híbrido, Vistas y DNSSEC -->
+    <div class="slide">
+      <div class="title-tag">Criterio 1: Infraestructura DNS</div>
+      <h2>BIND 9 con Vistas Split-Horizon, Replicación TSIG y DNSSEC</h2>
+      <p class="lead">Autoridad primaria y secundaria con sincronización segura y firmado criptográfico automático.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📸 Evidencia: delv Fully Validated y Monitoreo DNS</div>
+          <img src="../../lab15/screenshots/05_verificacion_dnssec_delv_fully_validated.png" alt="delv fully validated" class="img-preview">
+          <div class="code-box">
+<span class="ok">; fully validated</span>
+cbbb.example. 86400 IN A 203.0.113.20
+cbbb.example. 86400 IN RRSIG A 13 2 86400 ...
+<span class="ok">✅ Validación positiva con ancla de confianza oficial</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚙️ Mecanismos de Seguridad Implementados</div>
+          <ul class="feature-list">
+            <li><strong>Vistas Divididas:</strong> Directiva <code>match-clients</code> separa tráfico interno de externo. Nombres <code>.internal</code> devuelven <code>REFUSED</code> desde afuera.</li>
+            <li><strong>Replicación TSIG:</strong> Transferencias AXFR hacia <code>ns2</code> protegidas con HMAC-SHA256 (`transferencia.key`). Intentos sin clave rechazados.</li>
+            <li><strong>DNSSEC Automático:</strong> Política <code>dnssec-policy standard</code> con firmado dinámico de registros y pruebas de inexistencia con <code>NSEC3</code>.</li>
+            <li><strong>Ocultación de Versión:</strong> <code>version none</code> en named.conf impide que escáneres detecten la versión de BIND.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 6: Resolutor Unbound con DoT y RPZ -->
+    <div class="slide">
+      <div class="title-tag">Criterio 2: Seguridad y Privacidad</div>
+      <h2>Resolutor Recursivo Unbound: DoT (Puerto 853) y Filtrado RPZ</h2>
+      <p class="lead">Protección contra espionaje del proveedor (ISP) y filtrado perimetral para las salas de cómputo.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🛡️ DNS sobre TLS (DoT) en Puerto 853</div>
+          <div class="code-box" style="font-size: 0.78rem;">
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    # Servidores DNS cifrados en puerto 853:
+    forward-addr: 1.1.1.1@853#cloudflare-dns.com
+    forward-addr: 9.9.9.9@853#dns.quad9.net
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Demostrado con <code>tcpdump</code>: Ninguna consulta recursiva hacia internet viaja en texto plano por el puerto 53 UDP. Todo el tráfico escolar sale cifrado con TLS hacia la nube.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🚫 Filtrado de Navegación Escolar con RPZ</div>
+          <div class="code-box" style="font-size: 0.78rem;">
+# /etc/unbound/rpz.zone
+$TTL 3600
+@   IN  SOA ns.cbbb.internal. admin.cbbb.internal. ( ... )
+; Bloqueo inmediato forzando NXDOMAIN (CNAME .):
+sitio-apuestas.xyz      CNAME .
+*.sitio-apuestas.xyz    CNAME .
+malware-estudiantes.com CNAME .
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Si un alumno en los laboratorios intenta acceder a un sitio de juegos o estafas, Unbound responde inmediatamente con <code>NXDOMAIN</code> sin consultar internet.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 7: Criterio 1 Plus — Procedimiento de Cambios y Migración Anycast -->
+    <div class="slide">
+      <div class="title-tag">Rúbrica Nivel Estratégico (Criterio 1)</div>
+      <h2>Procedimiento Formal de Cambios y Plan de Migración Anycast</h2>
+      <p class="lead">Gestión profesional de zonas DNS con Git y transición hacia una arquitectura de alta disponibilidad.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📋 Regla de Serial SOA y Gestión de TTL</div>
+          <ul class="feature-list">
+            <li><strong>Serial Estándar YYYYMMDDnn:</strong> Ejemplo <code>2026102601</code>. Garantiza que el secundario identifique cualquier cambio y replique de inmediato.</li>
+            <li><strong>Política de TTL Escalonado:</strong>
+              <br>• Previo a migraciones: Reducción a <strong>300 segundos (5 min)</strong> con 48h de anticipación.
+              <br>• En operación estable: <strong>86400 segundos (24 horas)</strong> para máxima eficiencia de caché.</li>
+            <li><strong>Flujo Git con Pull Request:</strong> Validación sintáctica con <code>named-checkzone</code> antes del merge en la rama principal.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🗺️ Plan de Migración Híbrido Anycast</div>
+          <table class="custom-table">
+            <thead>
+              <tr><th>Fase</th><th>Objetivo Clave</th><th>Plazo</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>1. Auditoría</strong></td><td>Inventario de registros y cuenta Anycast (Cloudflare/Route53).</td><td>Semana 1</td></tr>
+              <tr><td><strong>2. Enlace TSIG</strong></td><td>BIND9 local como Hidden Master con clave HMAC-SHA256.</td><td>Semana 2</td></tr>
+              <tr><td><strong>3. DNSControl</strong></td><td>Programación declarativa en <code>dnsconfig.js</code> y preview.</td><td>Semana 3</td></tr>
+              <tr><td><strong>4. Corte NIC Bolivia</strong></td><td>Cambio de servidores NS delegados en nic.bo sin cortes.</td><td>Semana 4</td></tr>
+              <tr><td><strong>5. DNSSEC Cloud</strong></td><td>Carga de registro DS y validación global < 10 ms.</td><td>Semana 5</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 8: Criterio 2 Plus — Servicio Investigado (DNS-01 y nsupdate) -->
+    <div class="slide">
+      <div class="title-tag">Rúbrica Nivel Estratégico (Criterio 2)</div>
+      <h2>Servicio Investigado: Certificados DNS-01 y Actualizaciones con <code>nsupdate</code></h2>
+      <p class="lead">Integración avanzada de los estándares IETF RFC 8555 (ACME) y RFC 2136 (Dynamic DNS).</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔒 Desafío DNS-01 frente a HTTP-01</div>
+          <ul class="feature-list">
+            <li><strong>Cero Puertos Web Expuestos:</strong> No requiere abrir el puerto TCP 80 hacia internet para renovar certificados SSL.</li>
+            <li><strong>Soporte para Servidores Internos:</strong> Permite emitir certificados públicos válidos para servidores en IPs privadas (10.10.10.x).</li>
+            <li><strong>Certificados Comodín (*Wildcard*):</strong> Emisión de <code>*.cbautistabb.edu.bo</code> protegiendo portal, correo y notas con una sola clave.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">⚡ Inyección en Caliente con <code>nsupdate</code> TSIG</div>
+          <div class="code-box" style="font-size: 0.76rem;">
+# Inyección dinámica sin reiniciar BIND 9:
+nsupdate -k /etc/bind/ddns-cbbb.key &lt;&lt;EOF
+server 10.10.10.2
+zone cbbb.example
+update add _acme-challenge.cbbb.example 60 TXT "TOKEN-HASH-ACME"
+send
+EOF
+
+<span class="ok">✅ BIND actualiza la zona en memoria mediante journal (.jnl)</span>
+<span class="ok">✅ Let's Encrypt valida el registro TXT y emite certificado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 9: Web HTTPS y Acceso Remoto Seguro -->
+    <div class="slide">
+      <div class="title-tag">Criterios C1 y C2: Servicios Integrados</div>
+      <h2>Servidor Web Nginx HTTPS y Acceso Remoto SSH Blindado</h2>
+      <p class="lead">Cifrado estricto en tránsito, cabeceras modernas de seguridad y protección activa contra intrusiones.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🌐 Web Nginx con TLS 1.3, HSTS y CSP</div>
+          <ul class="feature-list">
+            <li><strong>Redirección Obligatoria:</strong> Puerto 80 redirige con código <code>301 Moved Permanently</code> a HTTPS.</li>
+            <li><strong>Cifrado Moderno:</strong> Protocolo TLS 1.3 exclusivo con suite <code>TLS_AES_256_GCM_SHA384</code>.</li>
+            <li><strong>Cabeceras de Blindaje:</strong> <code>Strict-Transport-Security</code> (HSTS 1 año), <code>Content-Security-Policy</code> (CSP) y <code>X-Content-Type-Options: nosniff</code>.</li>
+            <li><strong>Ocultación de Banner:</strong> Servidor responde sin versión (`Server: webserver`).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🔐 SSH Endurecido, SFTP en Chroot y Fail2ban</div>
+          <ul class="feature-list">
+            <li><strong>Solo Claves Criptográficas:</strong> Contraseñas desactivadas (`PasswordAuthentication no`); acceso directo a root bloqueado (`PermitRootLogin no`).</li>
+            <li><strong>Criptografía Post-Cuántica:</strong> Intercambio híbrido `sntrup761x25519-sha512@openssh.com` y claves asimétricas Ed25519.</li>
+            <li><strong>Jaula SFTP:</strong> `/srv/cbbb` con propiedad estricta `root:root (755)` forzada con `internal-sftp`.</li>
+            <li><strong>Fail2ban Activo:</strong> Monitoreo de journald y bloqueo automático de ataques de fuerza bruta en `nftables`.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 10: Correo Institucional Criptográfico -->
+    <div class="slide">
+      <div class="title-tag">Criterio C2: Correo Institucional</div>
+      <h2>Correo Institucional Seguro: Postfix, Dovecot IMAPS y Tríada DNS</h2>
+      <p class="lead">Solución definitiva a la vulnerabilidad de spoofing detectada en el diagnóstico inicial del colegio.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">✉️ Postfix 3.8 y Dovecot IMAPS Endurecidos</div>
+          <ul class="feature-list">
+            <li><strong>Almacenamiento Maildir:</strong> Estructura jerárquica con permisos 0700 por usuario.</li>
+            <li><strong>Puerto 143 Cerrado:</strong> Listener en claro clausurado (`port = 0`). Conexión obligatoria por IMAPS 993 con TLS implícito.</li>
+            <li><strong>Submission 587 Autenticado:</strong> STARTTLS y SASL forzados (`smtpd_tls_auth_only = yes`).</li>
+            <li><strong>Anti-Spoofing PCRE:</strong> Directiva `reject_sender_login_mismatch` bloquea el envío de correos suplantando al Director con código <strong>553 5.7.1</strong>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">📜 Tríada Criptográfica en BIND 9</div>
+          <table class="custom-table">
+            <thead>
+              <tr><th>Registro</th><th>Configuración Aplicada</th><th>Efecto de Seguridad</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>SPF</strong></td><td><code>v=spf1 mx -all</code></td><td>Rechazo duro; prohíbe envíos desde cualquier IP ajena.</td></tr>
+              <tr><td><strong>DKIM</strong></td><td>RSA 2048-bit (OpenDKIM)</td><td>Firma digital de cabeceras y hash de cuerpo (<code>bh=</code>).</td></tr>
+              <tr><td><strong>DMARC</strong></td><td><code>p=quarantine; adkim=s; aspf=s</code></td><td>Alineación estricta; manda a cuarentena correos falsificados.</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.85rem; color: var(--success); margin-top: 0.5rem; font-weight: 600;">
+            ✔ Envíos recibidos con cabeceras certificadas: dkim=pass, spf=pass y dmarc=pass.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 11: Criterio 3 Plus — Operación, Costos y Plan de Adopción Real -->
+    <div class="slide">
+      <div class="title-tag">Rúbrica Nivel Estratégico (Criterio 3)</div>
+      <h2>Operación Segura, Restic y Plan de Adopción Real para el CBBB</h2>
+      <p class="lead">Presupuesto en el mercado cruceño, matriz de riesgos de infraestructura y plan de 45 días.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">💰 Comparativa Económica Real (Ahorro del 82%)</div>
+          <table class="custom-table">
+            <thead>
+              <tr><th>Rubro (Hardware + Software)</th><th>Solución FOSS</th><th>Solución Propietaria</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Servidor Dell PowerEdge 1U</td><td>$us 1,850.00</td><td>$us 1,850.00</td></tr>
+              <tr><td>Licencia Windows Server + 68 CALs</td><td><strong>$us 0.00</strong></td><td>$us 4,420.00</td></tr>
+              <tr><td>DNS Appliance Infoblox</td><td><strong>$us 0.00</strong></td><td>$us 1,500.00</td></tr>
+              <tr><td>Google Workspace Enterprise (Año)</td><td><strong>$us 0.00</strong></td><td>$us 4,896.00</td></tr>
+              <tr><td>Veeam Backup Licencias</td><td><strong>$us 0.00</strong> (Restic)</td><td>$us 1,200.00</td></tr>
+              <tr><td>UPS Online 1500VA + Dominio .edu.bo</td><td>$us 500.00</td><td>$us 500.00</td></tr>
+              <tr><td><strong>INVERSIÓN TOTAL AÑO 1</strong></td><td><strong>$us 2,600.00</strong></td><td><strong>$us 14,366.00</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">🛡️ Resiliencia Operativa y Restic</div>
+          <ul class="feature-list">
+            <li><strong>Cortes de Energía en 3er Anillo:</strong> Mitigados con UPS Online 1500VA de doble conversión con apagado ordenado automático (NUT).</li>
+            <li><strong>Firewall UFW:</strong> nmap desde afuera confirma solo puertos 22, 80 y 443 expuestos.</li>
+            <li><strong>Respaldos Restic:</strong> Cifrado AES-256-GCM. Prueba de restauración idéntica certificada (SHA-256 intacto).</li>
+            <li><strong>Manual DRP:</strong> Procedimiento para reconstruir el servidor en <strong>20 a 25 minutos</strong>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diapositiva 12: Resultados Oficiales y Defensa en Vivo -->
+    <div class="slide">
+      <div class="title-tag">Evaluación Final</div>
+      <h2>Auditoría al 100% y Preparación para la Defensa Oral</h2>
+      <p class="lead">Certificación oficial de 36 pruebas superadas y solvencia técnica ante el tribunal evaluador.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📸 Evidencia: 29 de 29 Interna y 7 de 7 Externa</div>
+          <img src="../../lab15/screenshots/02_auditoria_infraestructura_29_de_29.png" alt="Auditoría 29 de 29" class="img-preview">
+          <div class="code-box">
+<span class="ok">✅ DNS autoritativo, TSIG, DoT (853) y RPZ activos</span>
+<span class="ok">✅ Sitio web HTTPS con TLS 1.3, HSTS y CSP</span>
+<span class="ok">✅ SSH endurecido sin root y con claves Ed25519</span>
+<span class="ok">✅ Correo Postfix/Dovecot con SPF, DKIM y DMARC</span>
+<span class="ok">Resultado: 29 de 29 comprobaciones internas (100%)</span>
+<span class="ok">Resultado: 7 de 7 comprobaciones externas con delv (100%)</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🎓 Guía de Defensa Oral (15 Minutos)</div>
+          <ul class="feature-list">
+            <li><strong>Bloque 1 (2 min):</strong> Problemas reales de <code>cbautistabb.edu.bo</code> (sin DMARC, SPF laxo, sin DNSSEC).</li>
+            <li><strong>Bloque 2 (3 min):</strong> Arquitectura de 7 nodos y matriz de 5 decisiones.</li>
+            <li><strong>Bloque 3 (5 min):</strong> Demostración en vivo en terminal (delv, DoT, HTTPS, correo).</li>
+            <li><strong>Bloque 4 (2 min):</strong> <strong>Reconstrucción en vivo</strong> de un nodo caído mediante scripts idempotentes.</li>
+            <li><strong>Bloque 5 (3 min):</strong> Ronda de preguntas imprevistas con solvencia absoluta.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Barra Inferior de Navegación -->
+  <footer>
+    <div class="key-hint">
+      Navegación: Usa <kbd>←</kbd> <kbd>→</kbd> o <kbd>Espacio</kbd>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn" id="btn-prev">Anterior</button>
+      <button class="btn btn-primary" id="btn-next">Siguiente</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const currentSlideSpan = document.getElementById('current-slide');
+    const totalSlidesSpan = document.getElementById('total-slides');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+    totalSlidesSpan.textContent = totalSlides;
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      currentIndex = index;
+
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentIndex);
+      });
+
+      currentSlideSpan.textContent = currentIndex + 1;
+      btnPrev.disabled = currentIndex === 0;
+      btnNext.textContent = currentIndex === totalSlides - 1 ? 'Finalizar' : 'Siguiente';
+    }
+
+    btnPrev.addEventListener('click', () => showSlide(currentIndex - 1));
+    btnNext.addEventListener('click', () => {
+      if (currentIndex < totalSlides - 1) {
+        showSlide(currentIndex + 1);
+      } else {
+        showSlide(0);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        if (currentIndex < totalSlides - 1) showSlide(currentIndex + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        if (currentIndex > 0) showSlide(currentIndex - 1);
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(totalSlides - 1);
+      }
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>

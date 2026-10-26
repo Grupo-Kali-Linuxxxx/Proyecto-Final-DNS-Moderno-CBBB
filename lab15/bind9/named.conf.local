@@ -1,0 +1,68 @@
+// named.conf.local — Definición de Vistas (Split-Horizon) y Claves TSIG para CBBB
+// Proyecto Socioformativo - Tecnología Web I - UPDS Santa Cruz
+
+// Clave TSIG para replicación segura entre ns1 y ns2 (HMAC-SHA256)
+key "tsig-cbbb-ns1-ns2" {
+    algorithm hmac-sha256;
+    secret "CBBB2026UPDSSecretKeyTsigHmacSha256SecureAuth==";
+};
+
+// Clave TSIG para actualizaciones dinámicas DNS-01 / RFC 2136 (nsupdate)
+key "ddns-cbbb-key" {
+    algorithm hmac-sha256;
+    secret "CBBB2026DDNSKeyHmacSha256NsupdateWildcardAuth==";
+};
+
+// ============================================================================
+// VISTA INTERNA (Para clientes de laboratorios, docentes y servidores internos)
+// ============================================================================
+view "interna" {
+    match-clients { "red_interna"; };
+    recursion yes;
+
+    // Zona interna institucional
+    zone "cbbb.internal" {
+        type primary;
+        file "/etc/bind/zones/db.cbbb.internal";
+        allow-transfer { key "tsig-cbbb-ns1-ns2"; };
+        also-notify { 10.10.10.3; };
+    };
+
+    // Zona inversa interna
+    zone "10.10.10.in-addr.arpa" {
+        type primary;
+        file "/etc/bind/zones/db.10.10.10";
+        allow-transfer { key "tsig-cbbb-ns1-ns2"; };
+        also-notify { 10.10.10.3; };
+    };
+
+    // Vista interna de la zona pública (resuelve a IPs privadas internas)
+    zone "cbbb.example" {
+        type primary;
+        file "/etc/bind/zones/db.cbbb.example.interna";
+        allow-transfer { key "tsig-cbbb-ns1-ns2"; };
+    };
+};
+
+// ============================================================================
+// VISTA EXTERNA (Para consultas de internet hacia el colegio)
+// ============================================================================
+view "externa" {
+    match-clients { any; };
+    recursion no;
+
+    // Zona pública firmada con DNSSEC
+    zone "cbbb.example" {
+        type primary;
+        file "/etc/bind/zones/db.cbbb.example.externa";
+        dnssec-policy standard;
+        key-directory "/etc/bind/keys";
+        inline-signing yes;
+        allow-transfer { key "tsig-cbbb-ns1-ns2"; };
+        also-notify { 172.30.0.3; };
+        update-policy {
+            grant ddns-cbbb-key name _acme-challenge.cbbb.example. TXT;
+            grant ddns-cbbb-key name dinamico.cbbb.example. A;
+        };
+    };
+};

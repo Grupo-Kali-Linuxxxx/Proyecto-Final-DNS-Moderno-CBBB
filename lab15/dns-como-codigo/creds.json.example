@@ -1,0 +1,10 @@
+{
+  "cloudflare": {
+    "TYPE": "CLOUDFLAREAPI",
+    "apitoken": "TU_API_TOKEN_CLOUDFLARE_AQUI_CBBB"
+  },
+  "bind": {
+    "TYPE": "BIND",
+    "directory": "/etc/bind/zones"
+  }
+}

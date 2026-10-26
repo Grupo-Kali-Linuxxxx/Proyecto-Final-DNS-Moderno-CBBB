@@ -1,0 +1,21 @@
+; db.10.10.10 — Resolución Inversa de la Red Interna del CBBB (10.10.10.0/24)
+$TTL 86400
+@   IN  SOA ns1.cbbb.internal. admin.cbautistabb.edu.bo. (
+            2026102601
+            3600
+            600
+            1209600
+            300
+)
+
+@           IN  NS      ns1.cbbb.internal.
+@           IN  NS      ns2.cbbb.internal.
+
+2           IN  PTR     ns1.cbbb.internal.
+3           IN  PTR     ns2.cbbb.internal.
+4           IN  PTR     resolutor.cbbb.internal.
+20          IN  PTR     web.cbbb.internal.
+25          IN  PTR     mail.cbbb.internal.
+50          IN  PTR     cliente.cbbb.internal.
+60          IN  PTR     biometrico.cbbb.internal.
+70          IN  PTR     camaras.cbbb.internal.

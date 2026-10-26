@@ -1,0 +1,21 @@
+; db.cbbb.example.interna — Vista interna de la zona pública (resolución directa a IPs privadas)
+$TTL 3600
+@   IN  SOA ns1.cbbb.example. soporte-ti.cbautistabb.edu.bo. (
+            2026102601
+            3600
+            600
+            1209600
+            300
+)
+
+@           IN  NS      ns1.cbbb.example.
+@           IN  NS      ns2.cbbb.example.
+
+ns1         IN  A       10.10.10.2
+ns2         IN  A       10.10.10.3
+
+; En la vista interna, los nombres públicos apuntan directo a la IP LAN del servidor (evita hairpin NAT)
+@           IN  A       10.10.10.20
+www         IN  A       10.10.10.20
+portal      IN  CNAME   www.cbbb.example.
+mail        IN  A       10.10.10.25

@@ -1,0 +1,61 @@
+# infraestructura/docker-compose.yml — Red base del Proyecto Socioformativo (copiar y adaptar nombres e IPs).
+# Usa las imágenes que ya construiste en el curso:
+#   horizonte-dns:24.04       → red_dns (Lab 7):          docker compose -f red_dns/docker-compose.yml build
+#   horizonte-servidor:24.04  → lab02/alternativa_docker: docker compose -f lab02/alternativa_docker/docker-compose.yml build
+# La carpeta del proyecto (la que contiene esta carpeta infraestructura/) aparece en /proyecto dentro de cada nodo.
+#   docker compose -p <equipo> up -d
+x-dns: &dns
+  image: horizonte-dns:24.04
+  privileged: true
+  cgroup: host
+  tmpfs: [/run, /run/lock, /tmp]
+  volumes: ["../:/proyecto"]
+  dns: [10.20.0.4]
+x-srv: &srv
+  image: horizonte-servidor:24.04
+  privileged: true
+  cgroup: host
+  tmpfs: [/run, /run/lock, /tmp]
+  volumes: ["../:/proyecto"]
+  dns: [10.20.0.4]
+
+services:
+  ns1:
+    <<: *dns
+    hostname: ns1
+    networks:
+      interna: {ipv4_address: 10.20.0.2}
+      internet: {ipv4_address: 172.31.0.2}
+  ns2:
+    <<: *dns
+    hostname: ns2
+    networks: {interna: {ipv4_address: 10.20.0.3}}
+  resolutor:
+    <<: *dns
+    hostname: resolutor
+    dns: [1.1.1.1]
+    networks: {interna: {ipv4_address: 10.20.0.4}}
+  web:
+    <<: *srv
+    hostname: web
+    networks: {interna: {ipv4_address: 10.20.0.20}}
+    ports: ["9443:443"]          # https://localhost:9443 desde la PC (con el nombre en el archivo hosts)
+  mail:
+    <<: *dns
+    hostname: mail
+    networks: {interna: {ipv4_address: 10.20.0.25}}
+  cliente:
+    <<: *dns
+    hostname: cliente
+    networks: {interna: {ipv4_address: 10.20.0.50}}
+  externo:
+    <<: *dns
+    hostname: externo
+    dns: [1.1.1.1]
+    networks: {internet: {ipv4_address: 172.31.0.100}}
+
+networks:
+  interna:
+    ipam: {config: [{subnet: 10.20.0.0/24}]}
+  internet:
+    ipam: {config: [{subnet: 172.31.0.0/24}]}

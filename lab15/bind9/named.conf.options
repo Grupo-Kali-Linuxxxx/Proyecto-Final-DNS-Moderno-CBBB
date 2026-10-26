@@ -1,0 +1,34 @@
+// named.conf.options — Configuración de BIND 9 para Colegio Bautista Boliviano Brasileño
+// Proyecto Socioformativo - Tecnología Web I - UPDS Santa Cruz
+
+acl "red_interna" {
+    127.0.0.1;
+    10.10.10.0/24;
+    10.20.0.0/24;
+};
+
+acl "secundario_autorizado" {
+    10.10.10.3;
+    10.20.0.3;
+};
+
+options {
+    directory "/var/cache/bind";
+
+    // Ocultar versión exacta para mitigar fingerprinting de atacantes
+    version "Servidor DNS Seguro CBBB";
+
+    // Los autoritativos no resuelven recursivamente consultas externas
+    recursion no;
+    allow-query { any; };
+
+    // Transferencia de zona restringida a la clave TSIG en named.conf.local
+    allow-transfer { none; };
+
+    // Cumplimiento estricto de estándares DNS
+    auth-nxdomain no;
+    listen-on-v6 { none; };
+
+    // Notificaciones automáticas al secundario ante cambios en el serial SOA
+    notify yes;
+};

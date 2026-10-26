@@ -1,0 +1,38 @@
+; db.cbbb.internal — Zona interna institucional del Colegio Bautista Boliviano Brasileño
+$TTL 86400
+@   IN  SOA ns1.cbbb.internal. admin.cbautistabb.edu.bo. (
+            2026102601  ; Serial YYYYMMDDnn
+            3600        ; Refresh 1h
+            600         ; Retry 10m
+            1209600     ; Expire 14d
+            300         ; Negative Cache TTL 5m
+)
+
+; Servidores de Nombres Autoritativos Internos
+@           IN  NS      ns1.cbbb.internal.
+@           IN  NS      ns2.cbbb.internal.
+
+ns1         IN  A       10.10.10.2
+ns2         IN  A       10.10.10.3
+resolutor   IN  A       10.10.10.4
+
+; Servidores de Aplicación y Servicios Institucionales
+web         IN  A       10.10.10.20
+www         IN  CNAME   web.cbbb.internal.
+portal      IN  CNAME   web.cbbb.internal.
+notas       IN  CNAME   web.cbbb.internal.
+aulavirtual IN  CNAME   web.cbbb.internal.
+
+; Servidor de Correo Interno
+mail        IN  A       10.10.10.25
+@           IN  MX  10  mail.cbbb.internal.
+
+; Equipos de Administración y Clientes
+cliente     IN  A       10.10.10.50
+biometrico  IN  A       10.10.10.60
+camaras     IN  A       10.10.10.70
+
+; Registros de Seguridad de Correo en Red Interna
+@           IN  TXT     "v=spf1 mx ip4:10.10.10.25 -all"
+_dmarc      IN  TXT     "v=DMARC1; p=quarantine; pct=100; rua=mailto:dmarc@cbbb.internal"
+mail._domainkey IN TXT  "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0FvLqP+4gW7uK8hZt2..."
